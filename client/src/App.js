@@ -6,6 +6,8 @@ import NoMatch from "./pages/NoMatch";
 import Nav from "./components/Nav";
 
 function App() {
+
+  console.log(window.location.pathname)
   return (
     <Router>
       <div>
