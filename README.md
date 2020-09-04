@@ -1,133 +1,110 @@
-# Google Books Search
+# Google Books Search -- React [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### Overview
+---
 
-In this activity, you'll create a new React-based Google Books Search app. This assignment requires you to create React components, work with helper/util functions, and utilize React lifecycle methods to query and display books based on user searches. You'll also use Node, Express and MongoDB so that users can save books to review or purchase later.
+## Table of Contents
 
-### Commits
+---
 
-Having an active and healthy commit history on GitHub is important for your future job search. It is also extremely important for making sure your work is saved in your repository. If something breaks, committing often ensures you are able to go back to a working version of your code.
+### [Description](#Description)
 
-* Committing often is a signal to employers that you are actively working on your code and learning.
+### [Screenshots](#Screenshots)
 
-  * We use the mantra “commit early and often.”  This means that when you write code that works, add it and commit it!
+### [Installation](#Installations)
 
-  * Numerous commits allow you to see how your app is progressing and give you a point to revert to if anything goes wrong.
+### [Usage](#Usages)
 
-* Be clear and descriptive in your commit messaging.
+### [License](#License)
 
-  * When writing a commit message, avoid vague messages like "fixed." Be descriptive so that you and anyone else looking at your repository knows what happened with each commit.
+### [Contributing](#Contributions)
 
-* We would like you to have well over 200 commits by graduation, so commit early and often!
+### [Deployment](#Deployment)
 
-### Submission on BCS
+### [Contact](#Contact)
 
-* **Please submit both the deployed Heroku link to your homework AND the link to the Github Repository!**
+---
 
-### Instructions
+## <a name="Description"></a>Description:
+**Search** - User can search for books via the Google Books API and render them here. User has the option to "View" a book, bringing them to the book on Google Books, or "Save" a book, saving it to the Mongo database.
 
-* This application requires at minimum 2 pages, check out the following mockup images for each page:
+**Saved** - Renders all books saved to the Mongo database. User has an option to "View" the book, bringing them to the book on Google Books, or "Delete" a book, removing it from the Mongo database.
 
-  * [Search](Search.png) - User can search for books via the Google Books API and render them here. User has the option to "View" a book, bringing them to the book on Google Books, or "Save" a book, saving it to the Mongo database.
+---
 
-  * [Saved](Saved.png) - Renders all books saved to the Mongo database. User has an option to "View" the book, bringing them to the book on Google Books, or "Delete" a book, removing it from the Mongo database.
+## <a name="Screenshots"></a>Screenshots:
+![image](client\public\assets\google-screenshot.png)![image](client\public\assets\google-screenshot.png)
 
-1. Start by using the 07-Ins_Mern example as a base for your application.
+---
 
-2. Add code to connect to a MongoDB database named `googlebooks` using the mongoose npm package.
+## <a name="Installation"></a>Installations:
 
-3. Using mongoose, then create a Book schema.
+For the backend server, I used:
+- [x] **start:** node server.js
+- [x] **install:** npm install
+- [x] **build:** npm run build
+- [x] **heroku-postbuild:** npm run build
 
-4. At a minimum, books should have each of the following fields:
+For the frontend, I used:
+- [x] **React**
+- [x] **Axios**
+- [x] **Google Books API**
+- [x] **Bootstrap** 
 
-* `title` - Title of the book from the Google Books API
+---
 
-* `authors` - The books's author(s) as returned from the Google Books API
+## <a name="Usage"></a>Usages:
 
-* `description` - The book's description as returned from the Google Books API
+As a user, I want to be able to select my books in the Google Books Search and as well, I'd like to save the book for later.
 
-* `image` - The Book's thumbnail image as returned from the Google Books API
+---
 
-* `link` - The Book's information link as returned from the Google Books API
+## <a name="License"></a>License:
 
-* Creating `documents` in your `books` collection similar to the following:
+**MIT License Copyright (c) 2020 Joshua Wilensky**
 
-    ```js
-    {
-      authors: ["Suzanne Collins"]
-      description: "Set in a dark vision of the near future, a terrifying reality TV show is taking place. Twelve boys and twelve girls are forced to appear in a live event called The Hunger Games. There is only one rule: kill or be killed. When sixteen-year-old Katniss Everdeen steps forward to take her younger sister's place in the games, she sees it as a death sentence. But Katniss has been close to death before. For her, survival is second nature."
-      image: "http://books.google.com/books/content?id=sazytgAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
-      link: "http://books.google.com/books?id=sazytgAACAAJ&dq=title:The+Hunger+Games&hl=&source=gbs_api"
-      title: "The Hunger Games"
-    }
-    ```
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-5. Create a layout similar to the mockups displayed above. This should be a SPA (Single Page Application) that uses [`react-router-dom`](https://github.com/reactjs/react-router) to navigate, hide and show your React components without changing the route within Express.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-* The layout should include at least two React Components for each page `Search` and `Saved`.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
-* Feel free to try out alternative CSS framework to Bootstrap.
+---
 
-6. Add the following Express routes for your app:
+## <a name="Contributing"></a>Contributions:
 
-* `/api/books` (get) - Should return all saved books as JSON.
+- Ben Wright
+- Justin Pinero
+- Benjamin Benson
 
-* `/api/books` (post) - Will be used to save a new book to the database.
+---
 
-* `/api/books/:id` (delete) - Will be used to delete a book from the database by Mongo `_id`.
+## <a name="Tests"></a>Deployment:
 
-* `*` (get) - Will load your single HTML page in `client/build/index.html`. Make sure you have this _after_ all other routes are defined.
+-  Heroku
+-  MongoDB
 
-* Deploy your application to Heroku once complete. **You must use Create React App** and current versions of React and React-Router-Dom for this assignment.
+---
 
-- - -
+## <a name="Contact"></a>Contact the Author:
 
-### Bonus Live Updates to Saved Books
 
-* Use React routing and [socket.io](http://socket.io) to create a notification or a component that triggers whenever a user saves an book. Your message should include the title of the saved book.
+|    Contact    |                   Links                   |
+| :-----------: | :---------------------------------------: |
+|  **Email:**   |          joshwilensky@gmail.com           |
+|  **GitHub:**  |      https://github.com/joshwilensky      |
+|  **Heroku:**  | https://polar-gorge-04456.herokuapp.com/  |
+| **LinkedIn:** | https://www.linkedin.com/in/joshwilensky/ |
 
-  * Say you have multiple browsers open, each one visiting your site. If you save an book in one browser, then all of your browsers should notify you that a new book was saved.
-
-  * [Socket.io NPM package](https://www.npmjs.com/package/socket.io)
-
-### Reminder: Submission on BCS
-
-* **This assignment must be deployed.** * Please submit both the deployed Heroku link to your homework AND the link to the Github Repository!
-
-- - -
-
-### Minimum Requirements
-
-Attempt to complete homework assignment as described in instructions. If unable to complete certain portions, please pseudocode these portions to describe what remains to be completed. Hosting on Heroku and adding a README.md are required for this homework. In addition, add this homework to your portfolio, more information can be found below.
-
-- - -
-
-### Create a README.md
-
-Add a `README.md` to your repository describing the project. Here are some resources for creating your `README.md`. Here are some resources to help you along the way:
-
-* [About READMEs](https://help.github.com/articles/about-readmes/)
-
-* [Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
-
-- - -
-
-### Add To Your Portfolio
-
-After completing the homework please add the piece to your portfolio. Make sure to add a link to your updated portfolio in the comments section of your homework so the TAs can easily ensure you completed this step when they are grading the assignment. To receive an 'A' on any assignment, you must link to it from your portfolio.
-
-- - -
-
-### Hosting on Heroku
-
-Now that we have a backend to our applications, we use Heroku for hosting. Please note that while **Heroku is free**, it will request credit card information if you have more than 5 applications at a time or are adding a database.
-
-Please see [Heroku’s Account Verification Information](https://devcenter.heroku.com/articles/account-verification) for more details.
-
-- - -
-
-### One More Thing
-
-If you have any questions about this project or the material we have covered, please post them in the community channels in slack so that your fellow developers can help you! If you're still having trouble, you can come to office hours for assistance from your instructor and TAs.
-
-**Good Luck!**
+---
