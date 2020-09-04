@@ -23,6 +23,7 @@
     "express": "^4.16.3",
     "if-env": "^1.0.4",
     "mongod": "^2.0.0",
-    "mongoose": "^5.3.16"
+    "mongoose": "^5.3.16",
+    "socket.io": "^2.3.0"
   }
 }
