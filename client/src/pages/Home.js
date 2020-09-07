@@ -8,12 +8,21 @@ import API from "../utils/API";
 import { Col, Row, Container } from "../components/Grid";
 import { List } from "../components/List";
 
+import io from '../utils/socket'
+
 class Home extends Component {
   state = {
     books: [],
     q: "",
     message: "Search For A Book To Begin!"
   };
+
+  componentDidMount(){
+    io.on('reload', function(){
+      console.log('hello')
+    })
+  }
+
 
   handleInputChange = event => {
     const { name, value } = event.target;
@@ -53,7 +62,12 @@ class Home extends Component {
       authors: book.volumeInfo.authors,
       description: book.volumeInfo.description,
       image: book.volumeInfo.imageLinks.thumbnail
-    }).then(() => this.getBooks());
+    }).then(() => {
+
+      io.emit('trigger')
+
+      this.getBooks()
+    });
   };
 
   render() {

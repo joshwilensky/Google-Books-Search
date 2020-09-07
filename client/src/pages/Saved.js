@@ -7,27 +7,34 @@ import API from "../utils/API";
 import { Col, Row, Container } from "../components/Grid";
 import { List } from "../components/List";
 
+import io from "../utils/socket";
+
 class Saved extends Component {
   state = {
-    books: []
+    books: [],
   };
 
   componentDidMount() {
     this.getSavedBooks();
+
+    io.on("reload", () => {
+      console.log("RELOAD");
+      this.getSavedBooks();
+    });
   }
 
   getSavedBooks = () => {
     API.getSavedBooks()
-      .then(res =>
+      .then((res) =>
         this.setState({
-          books: res.data
+          books: res.data,
         })
       )
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   };
 
-  handleBookDelete = id => {
-    API.deleteBook(id).then(res => this.getSavedBooks());
+  handleBookDelete = (id) => {
+    API.deleteBook(id).then((res) => this.getSavedBooks());
   };
 
   render() {
@@ -39,7 +46,9 @@ class Saved extends Component {
               <h1 className="text-center">
                 <strong>(React) Google Books Search</strong>
               </h1>
-              <h2 className="text-center">Search for and Save Books of Interest.</h2>
+              <h2 className="text-center">
+                Search for and Save Books of Interest.
+              </h2>
             </Jumbotron>
           </Col>
         </Row>
@@ -48,7 +57,7 @@ class Saved extends Component {
             <Card title="Saved Books" icon="download">
               {this.state.books.length ? (
                 <List>
-                  {this.state.books.map(book => (
+                  {this.state.books.map((book) => (
                     <Book
                       key={book._id}
                       title={book.title}
