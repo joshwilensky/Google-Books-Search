@@ -5,9 +5,15 @@ import Saved from "./pages/Saved";
 import NoMatch from "./pages/NoMatch";
 import Nav from "./components/Nav";
 
-function App() {
+// import io from './utils/socket';
 
-  console.log(window.location.pathname)
+function App() {
+  // React.useEffect(()=>{
+
+  //   io.emit('start', 'WHAM!')
+
+  // }, [])
+
   return (
     <Router>
       <div>
