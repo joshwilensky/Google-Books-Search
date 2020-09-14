@@ -32,7 +32,7 @@
 ---
 
 ## <a name="Screenshots"></a>Screenshots:
-![image](client\public\assets\google-screenshot.png)![image](client\public\assets\google-screenshot.png)
+![image](../assets/google-screenshot.png)![image](google-screenshot.png)
 
 ---
 
