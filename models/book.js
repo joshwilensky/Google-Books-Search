@@ -8,8 +8,6 @@ const bookSchema = new Schema({
   link: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
-  pageCount: { type: Number, required: true },
-  publishedDate: { type: Date, required: true },
   googleId: { type: String, required: true, unique: true },
 })
 

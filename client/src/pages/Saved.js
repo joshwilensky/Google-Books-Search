@@ -47,8 +47,8 @@ class Saved extends Component {
             <Card title="Saved Books" icon="download">
               {this.state.books.length ? (
                 <List>
-                  <h4 style={{ textAlign: 'right' }}>
-                    {this.state.books.length} results
+                  <h4 style={{ textAlign: 'center', margin: '10px' }}>
+                    {this.state.books.length} saved books
                   </h4>
                   {this.state.books.map((book) => (
                     <Book

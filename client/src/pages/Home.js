@@ -7,7 +7,7 @@ import Footer from '../components/Footer'
 import API from '../utils/API'
 import { Col, Row, Container } from '../components/Grid'
 import { List } from '../components/List'
-
+import './Home.css'
 // import io from '../utils/socket'
 
 class Home extends Component {
@@ -67,7 +67,7 @@ class Home extends Component {
           <Col size="md-12">
             <Jumbotron>
               <h1 className="text-center">
-                <strong>(React) Google Books Search</strong>
+                <strong>Google Books Search</strong>
               </h1>
               <h2 className="text-center">
                 Search for any book, and then save the book of your interest!
@@ -84,10 +84,11 @@ class Home extends Component {
             </Card>
           </Col>
         </Row>
-        <Row>
-          <Col size="md-12">
-            <Card title="Results">
-              {this.state.books.length ? (
+        {this.state.books.length ? (
+          <Row>
+            <Col size="md-12">
+
+                <h4 style={{margin: '10px'}}>{this.state.books.length} results</h4>
                 <List>
                   {this.state.books.map((book) => (
                     <Book
@@ -109,12 +110,11 @@ class Home extends Component {
                     />
                   ))}
                 </List>
-              ) : (
-                <h2 className="text-center">{this.state.message}</h2>
-              )}
-            </Card>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        ) : (
+          <h2 className="text-center"></h2>
+        )}
         <Footer />
       </Container>
     )

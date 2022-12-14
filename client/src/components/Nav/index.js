@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import API from '../../utils/API'
 import { Link } from 'react-router-dom'
 import './style.css'
 
@@ -6,8 +7,18 @@ class Nav extends Component {
   state = {
     open: false,
     width: window.innerWidth,
+    books: []
   }
 
+  getSavedBooks = () => {
+    API.getSavedBooks()
+      .then((res) =>
+        this.setState({
+          books: res.data,
+        }),
+      )
+      .catch((err) => console.log(err))
+  }
   updateWidth = () => {
     const newState = { width: window.innerWidth }
 
@@ -24,6 +35,7 @@ class Nav extends Component {
 
   componentDidMount() {
     window.addEventListener('resize', this.updateWidth)
+    this.getSavedBooks()
   }
 
   componentWillUnmount() {
@@ -65,6 +77,7 @@ class Nav extends Component {
                 Search
               </Link>
             </li>
+
             <li className="nav-item">
               <Link
                 onClick={this.toggleNav}
@@ -75,7 +88,7 @@ class Nav extends Component {
                 }
                 to="/saved"
               >
-                Saved
+                Saved ({this.state.books.length})
               </Link>
             </li>
           </ul>
