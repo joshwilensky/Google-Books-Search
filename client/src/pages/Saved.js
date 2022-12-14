@@ -1,26 +1,19 @@
-import React, { Component } from "react";
-import Jumbotron from "../components/Jumbotron";
-import Card from "../components/Card";
-import Book from "../components/Book";
-import Footer from "../components/Footer";
-import API from "../utils/API";
-import { Col, Row, Container } from "../components/Grid";
-import { List } from "../components/List";
-
-import io from "../utils/socket";
+import React, { Component } from 'react'
+import Jumbotron from '../components/Jumbotron'
+import Card from '../components/Card'
+import Book from '../components/Book'
+import Footer from '../components/Footer'
+import API from '../utils/API'
+import { Col, Row, Container } from '../components/Grid'
+import { List } from '../components/List'
 
 class Saved extends Component {
   state = {
     books: [],
-  };
+  }
 
   componentDidMount() {
-    this.getSavedBooks();
-
-    io.on("reload", () => {
-      console.log("RELOAD");
-      this.getSavedBooks();
-    });
+    this.getSavedBooks()
   }
 
   getSavedBooks = () => {
@@ -28,14 +21,14 @@ class Saved extends Component {
       .then((res) =>
         this.setState({
           books: res.data,
-        })
+        }),
       )
-      .catch((err) => console.log(err));
-  };
+      .catch((err) => console.log(err))
+  }
 
   handleBookDelete = (id) => {
-    API.deleteBook(id).then((res) => this.getSavedBooks());
-  };
+    API.deleteBook(id).then((res) => this.getSavedBooks())
+  }
 
   render() {
     return (
@@ -44,11 +37,8 @@ class Saved extends Component {
           <Col size="md-12">
             <Jumbotron>
               <h1 className="text-center">
-                <strong>(React) Google Books Search</strong>
+                <strong>Saved Books</strong>
               </h1>
-              <h2 className="text-center">
-                Search for and Save Books of Interest.
-              </h2>
             </Jumbotron>
           </Col>
         </Row>
@@ -57,13 +47,16 @@ class Saved extends Component {
             <Card title="Saved Books" icon="download">
               {this.state.books.length ? (
                 <List>
+                  <h4 style={{ textAlign: 'right' }}>
+                    {this.state.books.length} results
+                  </h4>
                   {this.state.books.map((book) => (
                     <Book
                       key={book._id}
                       title={book.title}
                       subtitle={book.subtitle}
                       link={book.link}
-                      authors={book.authors.join(", ")}
+                      authors={book.authors.join(', ')}
                       description={book.description}
                       image={book.image}
                       Button={() => (
@@ -85,8 +78,8 @@ class Saved extends Component {
         </Row>
         <Footer />
       </Container>
-    );
+    )
   }
 }
 
-export default Saved;
+export default Saved

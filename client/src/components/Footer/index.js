@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 function Footer() {
   return (
@@ -8,7 +8,7 @@ function Footer() {
         <i className="fab fa-github" /> Proudly built using React.js
       </p>
     </footer>
-  );
+  )
 }
 
-export default Footer;
+export default Footer

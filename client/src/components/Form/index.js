@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 function Form({ q, handleInputChange, handleFormSubmit }) {
   return (
@@ -28,7 +28,7 @@ function Form({ q, handleInputChange, handleFormSubmit }) {
         </button>
       </div>
     </form>
-  );
+  )
 }
 
-export default Form;
+export default Form
