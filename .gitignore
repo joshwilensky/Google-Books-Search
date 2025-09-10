@@ -3,3 +3,6 @@ package-lock.json
 .env
 .env.localclient
 client
+
+# Local Netlify folder
+.netlify
