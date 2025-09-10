@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { createBooksClient } from "../context/books/BooksActions";
-import Hero from "../components/layout/Hero";
+import { useNavigate } from "react-router-dom";
+import { createBooksClient, saveBook } from "../context/books/BooksActions";
 import SearchBar from "../components/books/SearchBar";
 import BookList from "../components/books/BookList";
 import ViewToggle from "../components/layout/ViewToggle";
@@ -20,6 +20,7 @@ const Skeleton = () => (
 
 export default function Home() {
   const client = useMemo(() => createBooksClient(), []);
+  const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
   const [query, setQuery] = useState("");
@@ -60,7 +61,6 @@ export default function Home() {
       try {
         const start = reset ? 0 : nextIndex;
         const result = await client.searchPaged(q, start, 20);
-
         if (!mountedRef.current || myId !== reqIdRef.current) return;
 
         const chunk = (result && result.items) || [];
@@ -78,7 +78,7 @@ export default function Home() {
       } catch (e) {
         if (!mountedRef.current || myId !== reqIdRef.current) return;
         if (e && e.aborted) {
-          // canceled by a new search; ignore
+          // canceled by a new search
         } else if (e && e.status === 429) {
           setError("Too many requests. Please pause a second and try again.");
         } else if (e && e.timedOut) {
@@ -96,17 +96,33 @@ export default function Home() {
   );
 
   const onSearch = useCallback(
-    (q, reset = true) => {
-      runSearch(q, reset);
-    },
+    (q, reset = true) => runSearch(q, reset),
     [runSearch]
   );
 
   const onLoadMore = useCallback(() => {
-    if (!loading && !loadingMore && hasMore && query) {
-      runSearch(query, false);
-    }
+    if (!loading && !loadingMore && hasMore && query) runSearch(query, false);
   }, [loading, loadingMore, hasMore, query, runSearch]);
+
+  const onSaveBook = useCallback(
+    async (book) => {
+      const v = book?.volumeInfo || {};
+      await saveBook({
+        volumeId: book?.id,
+        title: v.title || "",
+        authors: Array.isArray(v.authors) ? v.authors : [],
+        image:
+          (v.imageLinks &&
+            (v.imageLinks.thumbnail || v.imageLinks.smallThumbnail)) ||
+          "",
+        infoLink: v.infoLink || "",
+        description: String(v.description || "").replace(/<\/?[^>]+>/g, ""),
+      });
+      navigate("/saved");
+    },
+    [navigate]
+  );
+
 
   const shown = items.length;
   const totalLabel =
@@ -116,11 +132,8 @@ export default function Home() {
 
   return (
     <div className='page-wrap max-w-5xl'>
-      {/* Narrower page: add max-w-5xl (≈ 80rem) */}
-      <Hero />
       <SearchBar onSearch={onSearch} minChars={3} />
 
-      {/* Toolbar with count + view toggle */}
       <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4'>
         <div className='opacity-70 text-sm'>
           {query ? (
@@ -148,7 +161,7 @@ export default function Home() {
         </div>
       ) : (
         <>
-          <BookList books={items} layout={layout} />
+          <BookList books={items} layout={layout} onSave={onSaveBook} />
           {hasMore && (
             <div className='flex justify-center py-6'>
               <button

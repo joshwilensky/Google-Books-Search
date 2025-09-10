@@ -1,37 +1,53 @@
-import React from "react";
-import { useContext, useEffect } from "react";
-import BooksContext from "../context/books/BooksContext";
+import React, { useEffect, useState } from "react";
 import { listSaved, deleteBook } from "../context/books/BooksActions";
 import BookList from "../components/books/BookList";
 
 export default function Saved() {
-  const { saved, dispatch } = useContext(BooksContext);
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
     (async () => {
-      dispatch({ type: "SET_LOADING" });
       try {
-        const items = await listSaved();
-        dispatch({ type: "SET_SAVED", payload: items });
+        const data = await listSaved();
+        setBooks(Array.isArray(data) ? data : []);
       } catch (e) {
-        dispatch({ type: "SET_ERROR", payload: e.message || "Load failed" });
-        dispatch({ type: "SET_SAVED", payload: [] });
+        setErr(e?.message || "Failed to load saved books.");
+      } finally {
+        setLoading(false);
       }
     })();
-  }, [dispatch]);
+  }, []);
 
-  const onDelete = async (book) => {
-    dispatch({ type: "SET_LOADING" });
+  const onDelete = async (b) => {
     try {
-      await deleteBook(book);
-      const items = await listSaved();
-      dispatch({ type: "SET_SAVED", payload: items });
+      await deleteBook(b);
+      const id = b.id || b._id || b.volumeId;
+      setBooks((prev) =>
+        prev.filter((x) => (x.id || x._id || x.volumeId) !== id)
+      );
     } catch (e) {
-      dispatch({ type: "SET_ERROR", payload: e.message || "Delete failed" });
-      dispatch({ type: "SET_LOADING" }); // clear spinner
-      dispatch({ type: "SET_SAVED", payload: saved });
+      setErr(e?.message || "Failed to delete.");
     }
   };
 
-  return <BookList books={saved} onDelete={onDelete} saved />;
+  return (
+    <div className='page-wrap max-w-5xl'>
+      <div className='flex items-center justify-between mb-4'>
+        <h1 className='text-2xl font-bold'>Saved</h1>
+        <div className='opacity-70'>{books.length} saved</div>
+      </div>
+      {err && (
+        <div className='alert alert-warning mb-4'>
+          <span>{err}</span>
+        </div>
+      )}
+      {loading ? (
+        <div className='skeleton h-24 w-full' />
+      ) : (
+        <BookList books={books} layout='list' saved onDelete={onDelete} />
+      )}
+    </div>
+  );
 }

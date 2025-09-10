@@ -1,37 +1,40 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
-import Navbar from "./components/layout/Navbar";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Layout from "./components/layout/Layout";
 import Home from "./pages/Home";
+import BookDetails from "./pages/BookDetails";
 import Saved from "./pages/Saved";
-import { BooksProvider } from "./context/books/BooksContext";
-import './index.css'
+import { ThemeProvider } from "./context/theme/ThemeContext";
 
 function NotFound() {
   return (
-    <div className='text-center p-10'>
-      <h2 className='text-2xl font-semibold mb-2'>Page not found</h2>
-      <Link to='/' className='link'>
-        Go home
-      </Link>
-    </div>
+    <main className='page-wrap max-w-3xl'>
+      <h1 className='text-2xl font-bold mb-2'>Page not found</h1>
+      <p className='opacity-70'>Try the search page.</p>
+    </main>
   );
 }
 
 export default function App() {
   return (
-    <BooksProvider>
+    <ThemeProvider>
       <Router>
-        <div className='min-h-screen bg-base-200'>
-          <Navbar />
-          <main className='page-wrap'>
-            <Switch>
-              <Route exact path='/' component={Home} />
-              <Route exact path='/saved' component={Saved} />
-              <Route path='*' component={NotFound} />
-            </Switch>
-          </main>
-        </div>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path='/' element={<Home />} />
+            <Route path='/search' element={<Home />} />
+            <Route path='/book/:id' element={<BookDetails />} />
+            <Route path='/saved' element={<Saved />} />
+            <Route path='/home' element={<Navigate to='/' replace />} />
+            <Route path='*' element={<NotFound />} />
+          </Route>
+        </Routes>
       </Router>
-    </BooksProvider>
+    </ThemeProvider>
   );
 }

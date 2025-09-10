@@ -1,42 +1,49 @@
 {
-  "name": "react-google-books",
-  "version": "0.1.0",
+  "name": "google-books-search-client",
+  "version": "1.0.0",
   "private": true,
-  "proxy": "http://localhost:3001/",
-  "overrides": {
-    "@babel/runtime": "7.24.8",
-    "babel-preset-react-app/@babel/runtime": "7.24.8"
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
-    "@babel/runtime": "^7.24.0",
-    "@tailwindcss/postcss": "^4.1.13",
-    "axios": "^0.18.0",
-    "daisyui": "^4.12.24",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-icons": "^5.5.0",
-    "react-router-dom": "^4.3.1",
-    "react-scripts": "5.0.1",
-    "socket.io-client": "^2.3.0"
+    "axios": "^1.7.7",
+    "daisyui": "^2.51.6",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-icons": "^4.12.0",
+    "react-number-format": "^4.9.1",
+    "react-router-dom": "^6.26.2",
+    "react-scripts": "5.0.0"
   },
-  "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.16",
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^3.4.17"
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.10"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --watchAll=false",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

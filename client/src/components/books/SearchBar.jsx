@@ -1,55 +1,68 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch, FiSend, FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { createBooksClient } from "../../context/books/BooksActions";
 
 function getInitials(name) {
-  if (!name) return "?";
-  const parts = String(name).trim().split(/\s+/);
-  const a = parts[0]?.[0] || "";
-  const b = parts[1]?.[0] || "";
-  return (a + b || a).toUpperCase();
+  try {
+    var parts = String(name || "")
+      .trim()
+      .split(/\s+/);
+    var a = (parts[0] && parts[0][0]) || "";
+    var b = (parts[1] && parts[1][0]) || "";
+    var out = a + b || a || "?";
+    return out.toUpperCase();
+  } catch (_) {
+    return "?";
+  }
 }
 
-function buildSuggestions(items, maxAuthors = 6, maxBooks = 10) {
-  const books = [];
-  const authorSet = new Set();
-  const authors = [];
+function buildSuggestions(items, maxAuthors, maxBooks) {
+  maxAuthors = Number(maxAuthors || 6);
+  maxBooks = Number(maxBooks || 10);
 
-  for (let i = 0; i < items.length; i++) {
-    const v = items[i]?.volumeInfo || {};
-    const title = v.title || "Untitled";
-    const desc = v.description ? String(v.description) : "";
-    const img =
-      v.imageLinks && (v.imageLinks.thumbnail || v.imageLinks.smallThumbnail)
-        ? v.imageLinks.thumbnail || v.imageLinks.smallThumbnail
-        : null;
+  var books = [];
+  var authorSet = Object.create(null);
+  var authors = [];
+
+  for (var i = 0; i < (items ? items.length : 0); i++) {
+    var it = items[i] || {};
+    var id = it.id;
+    var v = it.volumeInfo || {};
+    var title = v.title || "Untitled";
+    var desc = v.description ? String(v.description) : "";
+    var img =
+      (v.imageLinks &&
+        (v.imageLinks.thumbnail || v.imageLinks.smallThumbnail)) ||
+      null;
 
     books.push({
       type: "book",
-      key: "book_" + (items[i]?.id || i),
-      title,
-      subtitle: v.authors ? v.authors.join(", ") : v.publisher || "",
-      img,
+      key: "book_" + (id || i),
+      title: title,
+      subtitle:
+        (Array.isArray(v.authors) && v.authors.join(", ")) || v.publisher || "",
+      img: img,
       description: desc.slice(0, 120),
-      payload: { title },
+      payload: { id: id },
     });
 
     if (Array.isArray(v.authors)) {
-      v.authors.forEach((a) => {
-        const name = String(a).trim();
-        if (name && !authorSet.has(name)) {
-          authorSet.add(name);
+      for (var j = 0; j < v.authors.length; j++) {
+        var name = String(v.authors[j] || "").trim();
+        if (name && !authorSet[name]) {
+          authorSet[name] = 1;
           authors.push({
             type: "author",
             key: "author_" + name,
             title: name,
             subtitle: "Author",
-            img: null, // will render initials avatar
+            img: null,
             description: "Search books by this author",
             payload: { author: name },
           });
         }
-      });
+      }
     }
   }
 
@@ -61,36 +74,45 @@ function buildSuggestions(items, maxAuthors = 6, maxBooks = 10) {
 
 /**
  * ChatGPT-style input with live suggestions dropdown.
- * - Min chars before suggesting (default 3)
- * - Keyboard: "/" focuses, Up/Down navigate, Enter select.
+ * - Authors: clicking runs an author search
+ * - Books: clicking navigates to /book/:id
  */
-export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
-  const client = useMemo(() => createBooksClient(), []);
-  const [q, setQ] = useState("");
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState({ authors: [], books: [] });
-  const [activeIdx, setActiveIdx] = useState(-1); // flattened index
-  const boxRef = useRef(null);
-  const inputRef = useRef(null);
-  const reqIdRef = useRef(0);
+export default function SearchBar(props) {
+  var onSearch = props.onSearch;
+  var minChars = typeof props.minChars === "number" ? props.minChars : 3;
+  var placeholder = props.placeholder;
 
-  // focus with "/" like ChatGPT
-  useEffect(() => {
+  var history = useNavigate();
+  var client = useMemo(function () {
+    return createBooksClient();
+  }, []);
+  var [q, setQ] = useState("");
+  var [open, setOpen] = useState(false);
+  var [loading, setLoading] = useState(false);
+  var [suggestions, setSuggestions] = useState({ authors: [], books: [] });
+  var [activeIdx, setActiveIdx] = useState(-1);
+  var boxRef = useRef(null);
+  var inputRef = useRef(null);
+  var reqIdRef = useRef(0);
+
+  // Focus with '/'
+  useEffect(function () {
     function onKey(e) {
-      const tag = (e.target && e.target.tagName) || "";
-      const inField = tag === "INPUT" || tag === "TEXTAREA";
+      var tag = (e.target && e.target.tagName) || "";
+      var inField = tag === "INPUT" || tag === "TEXTAREA";
       if (!inField && e.key === "/") {
         e.preventDefault();
-        inputRef.current && inputRef.current.focus();
+        if (inputRef.current) inputRef.current.focus();
       }
     }
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return function () {
+      window.removeEventListener("keydown", onKey);
+    };
   }, []);
 
-  // close on outside click
-  useEffect(() => {
+  // Close on outside click
+  useEffect(function () {
     function onDocClick(e) {
       if (!boxRef.current) return;
       if (!boxRef.current.contains(e.target)) {
@@ -99,87 +121,107 @@ export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
       }
     }
     document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
+    return function () {
+      document.removeEventListener("mousedown", onDocClick);
+    };
   }, []);
 
-  // debounced suggestions
-  useEffect(() => {
-    const query = (q || "").trim();
-    if (query.length < minChars) {
-      setSuggestions({ authors: [], books: [] });
-      setOpen(false);
-      setActiveIdx(-1);
-      return;
-    }
-    const myId = ++reqIdRef.current;
-    setLoading(true);
-
-    const t = setTimeout(async () => {
-      try {
-        // small, fast request for suggestions
-        const res = await client.searchPaged(query, 0, 20);
-        if (myId !== reqIdRef.current) return; // stale
-        const built = buildSuggestions(res.items || []);
-        setSuggestions(built);
-        const hasAny = built.authors.length + built.books.length > 0;
-        setOpen(hasAny);
-        setActiveIdx(hasAny ? 0 : -1);
-      } catch (_) {
-        // ignore errors in suggestions; just hide
-        if (myId !== reqIdRef.current) return;
+  // Debounced suggestions
+  useEffect(
+    function () {
+      var query = (q || "").trim();
+      if (query.length < minChars) {
         setSuggestions({ authors: [], books: [] });
         setOpen(false);
         setActiveIdx(-1);
-      } finally {
-        if (myId !== reqIdRef.current) return;
-        setLoading(false);
+        return;
       }
-    }, 350); // debounce
-
-    return () => clearTimeout(t);
-  }, [q, minChars, client]);
+      var myId = ++reqIdRef.current;
+      setLoading(true);
+      var t = setTimeout(function () {
+        client
+          .searchPaged(query, 0, 20)
+          .then(function (res) {
+            if (myId !== reqIdRef.current) return;
+            var built = buildSuggestions(res && res.items ? res.items : []);
+            setSuggestions(built);
+            var hasAny = built.authors.length + built.books.length > 0;
+            setOpen(hasAny);
+            setActiveIdx(hasAny ? 0 : -1);
+          })
+          .catch(function () {
+            if (myId !== reqIdRef.current) return;
+            setSuggestions({ authors: [], books: [] });
+            setOpen(false);
+            setActiveIdx(-1);
+          })
+          .finally(function () {
+            if (myId !== reqIdRef.current) return;
+            setLoading(false);
+          });
+      }, 350);
+      return function () {
+        clearTimeout(t);
+      };
+    },
+    [q, minChars, client]
+  );
 
   function flattened() {
-    return [...suggestions.authors, ...suggestions.books];
+    return [].concat(suggestions.authors || [], suggestions.books || []);
   }
 
   function selectSuggestion(sug) {
     if (!sug) return;
     if (sug.type === "author") {
-      const authorQuery = `inauthor:"${sug.payload.author}"`;
+      var authorQuery =
+        'inauthor:"' +
+        (sug.payload && sug.payload.author ? sug.payload.author : "") +
+        '"';
       setQ(authorQuery);
       setOpen(false);
       setActiveIdx(-1);
-      onSearch && onSearch(authorQuery, true);
+      if (onSearch) onSearch(authorQuery, true);
     } else {
-      const titleQuery = (sug.payload.title || "").trim();
-      setQ(titleQuery);
-      setOpen(false);
-      setActiveIdx(-1);
-      onSearch && onSearch(titleQuery, true);
+      var id = sug.payload && sug.payload.id;
+      if (id) {
+        setOpen(false);
+        setActiveIdx(-1);
+        history.push("/book/" + encodeURIComponent(id));
+      } else {
+        var titleQuery = String(sug.title || "").trim();
+        setQ(titleQuery);
+        setOpen(false);
+        setActiveIdx(-1);
+        if (onSearch) onSearch(titleQuery, true);
+      }
     }
   }
 
   function onSubmit(e) {
-    e && e.preventDefault();
-    const query = (q || "").trim();
+    if (e && e.preventDefault) e.preventDefault();
+    var query = (q || "").trim();
     if (query.length < minChars) return;
     setOpen(false);
     setActiveIdx(-1);
-    onSearch && onSearch(query, true);
+    if (onSearch) onSearch(query, true);
   }
 
   function onKeyDown(e) {
     if (!open) return;
-    const list = flattened();
+    var list = flattened();
     if (!list.length) return;
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActiveIdx((i) => (i + 1) % list.length);
+      setActiveIdx(function (i) {
+        return (i + 1) % list.length;
+      });
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setActiveIdx((i) => (i - 1 + list.length) % list.length);
+      setActiveIdx(function (i) {
+        return (i - 1 + list.length) % list.length;
+      });
     } else if (e.key === "Enter") {
       e.preventDefault();
       selectSuggestion(list[activeIdx]);
@@ -189,37 +231,29 @@ export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
     }
   }
 
-  const list = flattened();
+  var list = flattened();
 
   return (
     <form onSubmit={onSubmit} className='mb-6' ref={boxRef}>
       <div className='max-w-3xl mx-auto'>
-        <div
-          className='
-            relative flex items-center
-            rounded-2xl md:rounded-3xl
-            bg-base-100 border border-base-300
-            shadow-soft hover:shadow-lg
-            transition
-            px-4 py-3 md:px-5 md:py-4
-          '>
+        <div className='relative flex items-center rounded-2xl md:rounded-3xl bg-base-100 border border-base-300 shadow-soft hover:shadow-lg transition px-4 py-3 md:px-5 md:py-4'>
           {/* Left icon */}
           <span className='absolute left-4 md:left-5 opacity-70'>
-            <FiSearch className='text-xl' aria-hidden />
+            <FiSearch className='text-xl' aria-hidden='true' />
           </span>
 
           {/* Input */}
           <input
             ref={inputRef}
             type='text'
-            className='
-              w-full bg-transparent outline-none
-              pl-9 md:pl-10 pr-14 md:pr-16
-              text-base md:text-lg
-            '
+            className='w-full bg-transparent outline-none pl-9 md:pl-10 pr-14 md:pr-16 text-base md:text-lg'
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            onFocus={() => list.length && setOpen(true)}
+            onChange={function (e) {
+              setQ(e.target.value);
+            }}
+            onFocus={function () {
+              if (list.length) setOpen(true);
+            }}
             onKeyDown={onKeyDown}
             placeholder={
               placeholder ||
@@ -239,33 +273,31 @@ export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
           </button>
 
           {/* Dropdown */}
-          {open && (
-            <div
-              className='
-                absolute left-0 right-0 top-full mt-2
-                z-40 rounded-xl border border-base-300 bg-base-100
-                shadow-xl overflow-hidden
-              '>
-              {/* Authors section */}
-              {suggestions.authors.length > 0 && (
+          {open ? (
+            <div className='absolute left-0 right-0 top-full mt-2 z-40 rounded-xl border border-base-300 bg-base-100 shadow-xl overflow-hidden'>
+              {/* Authors */}
+              {suggestions.authors && suggestions.authors.length ? (
                 <div className='py-2'>
                   <div className='px-4 pb-1 text-xs uppercase opacity-60'>
                     Authors
                   </div>
-                  {suggestions.authors.map((sug, idx) => {
-                    const flatIdx = idx; // authors come first
-                    const active = activeIdx === flatIdx;
+                  {suggestions.authors.map(function (sug, idx) {
+                    var flatIdx = idx; // authors first
+                    var active = activeIdx === flatIdx;
                     return (
                       <button
                         type='button'
                         key={sug.key}
-                        onMouseEnter={() => setActiveIdx(flatIdx)}
-                        onClick={() => selectSuggestion(sug)}
+                        onMouseEnter={function () {
+                          setActiveIdx(flatIdx);
+                        }}
+                        onClick={function () {
+                          selectSuggestion(sug);
+                        }}
                         className={
                           "w-full text-left px-4 py-2 flex items-start gap-3 hover:bg-base-200 " +
                           (active ? "bg-base-200" : "")
                         }>
-                        {/* Initials avatar */}
                         <div className='avatar placeholder'>
                           <div className='w-10 rounded-full bg-base-300'>
                             <span className='text-sm'>
@@ -283,28 +315,33 @@ export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
                     );
                   })}
                 </div>
-              )}
+              ) : null}
 
-              {/* Books section */}
-              {suggestions.books.length > 0 && (
+              {/* Books */}
+              {suggestions.books && suggestions.books.length ? (
                 <div className='py-2 border-t border-base-300'>
                   <div className='px-4 pb-1 text-xs uppercase opacity-60'>
                     Books
                   </div>
-                  {suggestions.books.map((sug, idx) => {
-                    const flatIdx = suggestions.authors.length + idx;
-                    const active = activeIdx === flatIdx;
+                  {suggestions.books.map(function (sug, idx) {
+                    var flatIdx =
+                      (suggestions.authors ? suggestions.authors.length : 0) +
+                      idx;
+                    var active = activeIdx === flatIdx;
                     return (
                       <button
                         type='button'
                         key={sug.key}
-                        onMouseEnter={() => setActiveIdx(flatIdx)}
-                        onClick={() => selectSuggestion(sug)}
+                        onMouseEnter={function () {
+                          setActiveIdx(flatIdx);
+                        }}
+                        onClick={function () {
+                          selectSuggestion(sug);
+                        }}
                         className={
                           "w-full text-left px-4 py-2 flex items-start gap-3 hover:bg-base-200 " +
                           (active ? "bg-base-200" : "")
                         }>
-                        {/* Cover image or placeholder */}
                         <div className='w-10 h-14 rounded overflow-hidden bg-base-300 flex-shrink-0'>
                           {sug.img ? (
                             <img
@@ -338,21 +375,20 @@ export default function SearchBar({ onSearch, minChars = 3, placeholder }) {
                     );
                   })}
                 </div>
-              )}
+              ) : null}
 
-              {/* Footer */}
               <div className='px-4 py-2 text-xs opacity-60 border-t border-base-300 flex items-center justify-between'>
                 <span>
                   {loading
                     ? "Searching…"
-                    : "Use ↑ ↓ to navigate, Enter to search"}
+                    : "Use ↑ ↓ to navigate, Enter to select"}
                 </span>
                 <span>
                   Press <kbd className='kbd kbd-xs'>Esc</kbd> to close
                 </span>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
 
         <div className='text-center mt-2 text-sm opacity-70'>
