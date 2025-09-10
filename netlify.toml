@@ -1,0 +1,10 @@
+[build]
+  base    = "client"
+  command = "npm ci && npm run build"
+  publish = "client/build"
+
+# SPA fallback (React Router)
+[[redirects]]
+  from = "/*"
+  to   = "/index.html"
+  status = 200
