@@ -1,6 +1,3 @@
 {
-  "framework": "create-react-app",
-  "buildCommand": "npm --prefix client ci && npm --prefix client run build",
-  "outputDirectory": "client/build",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }

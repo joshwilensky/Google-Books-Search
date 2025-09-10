@@ -1,5 +1,5 @@
 node_modules
 package-lock.json
 .env
-.env.localclient/nul
-client/nul
+.env.localclient
+client
